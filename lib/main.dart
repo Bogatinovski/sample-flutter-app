@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:amplify_flutter/amplify.dart';
+import 'package:amplify_analytics_pinpoint/amplify_analytics_pinpoint.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 
 void main() {
   runApp(MyApp());
@@ -47,8 +50,44 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  bool _amplifyConfigured = false;
 
-  void _incrementCounter() {
+  @override
+  initState() {
+    super.initState();
+    _configureAmplify();
+  }
+
+  async _configureAmplify() async {
+    // Add Pinpoint and Cognito Plugins, or any other plugins you want to use
+    AmplifyAnalyticsPinpoint analyticsPlugin = AmplifyAnalyticsPinpoint();
+    AmplifyAuthCognito authPlugin = AmplifyAuthCognito();
+    Amplify.addPlugins([authPlugin, analyticsPlugin]);
+
+    // Once Plugins are added, configure Amplify
+    await Amplify.configure(amplifyconfig);
+    try {
+      setState(() {
+        _amplifyConfigured = true;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  async _incrementCounter() {
+    try {
+      SignInResult res = await Amplify.Auth.signIn(
+        username: "bogatinovski.dejan@gmail.com",
+        password: "password",
+      );
+      setState(() {
+        _counter = 100;
+      });
+    } on AuthError catch (e) {
+      print(e);
+    }
+
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
